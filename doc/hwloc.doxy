@@ -47,9 +47,8 @@ hwloc supports the following operating systems:
 <ul>
 <li>Linux (including old kernels not having sysfs topology
 information, with knowledge of cpusets, ScaleMP vSMP support, etc.)
-on all supported hardware, including Intel Xeon Phi
-(KNL and KNC, either standalone or as a coprocessor)
-and NumaScale NumaConnect.</li>
+on all supported hardware, including Intel(R) Xeon Phi(TM)
+processors and coprocessors, and NumaScale NumaConnect.</li>
 <li>Solaris (with support for processor sets and logical domains)</li>
 <li>AIX</li>
 <li>Darwin / OS X</li>
@@ -878,7 +877,7 @@ hwloc-dump-hwdata is a Linux and x86-specific tool that dumps
 from raw hardware files (SMBIOS and ACPI tables) to human-readable
 and world-accessible files that the hwloc library will later reuse.
 
-Currently only used on Intel Knights Landing Xeon Phi platforms.
+Currently only used on Intel(R) Xeon Phi(TM) processor platforms.
 See \ref faq_knl_dump.
 
 See <tt>HWLOC_DUMPED_HWDATA_DIR</tt> in \ref envvar for details
@@ -1156,7 +1155,7 @@ following environment variables.
   uses /proc/cpuinfo instead of sysfs.
   may be useful in the doc for debugging?
  HWLOC_KNL_NUMA_QUIRK
-  disables the KNL NUMA Cluster quirk in the linux backend
+  disables the Intel(R) Xeon Phi(TM) processor NUMA Cluster quirk in the linux backend
  HWLOC_DEBUG_CHECK
   runs sanity checks during discovery, as if \--enable-debug was passed but
   without debug messages
@@ -1708,7 +1707,7 @@ hwloc failed to discover any package.
 </dd>
 <dt>MemoryMode, ClusterMode (topology root, Machine object)</dt>
 <dd>
-Intel Knights Landing configuration modes, only available if
+Intel(R) Xeon Phi(TM) processor configuration modes, only available if
 hwloc-dump-hwdata was used (see \ref faq_knl_dump).
 The memory mode may be <em>Cache</em>, <em>Flat</em>,
 <em>Hybrid50</em> (half the MCDRAM is used as a cache)
@@ -2001,8 +2000,8 @@ These groups are merged back into the parent when possible
 (typically when a single NUMA node is requested below each parent).
 
 It is also possible the explicitly attach NUMA nodes to specific levels.
-For instance, a KNL-like topology with 2 NUMA nodes per 16-core group
-may be created with:
+For instance, a Intel(R) Xeon Phi(TM) processor topology
+with 2 NUMA nodes per 16-core group may be created with:
 \verbatim
 $ lstopo -i "package:1 group:4 [numa] [numa] core:16 pu:4"
 \endverbatim
@@ -3289,8 +3288,8 @@ than querying the operating system again.
 The utility <tt>hwloc-dump-hwdata</tt> is also involved in gathering
 privileged information at boot time and making it available to
 non-privileged users (note that this may require a specific SELinux
-MLS policy module). However, it only applies to Intel Knights Landing
-Xeon Phi for now (see \ref faq_knl_dump).
+MLS policy module). However, it only applies to
+Intel(R) Xeon Phi(TM) processors for now (see \ref faq_knl_dump).
 See also <tt>HWLOC_DUMPED_HWDATA_DIR</tt> in \ref envvar for details
 about the location of dumped files.
 
@@ -3444,9 +3443,9 @@ by the bitmap API in 1.1, and later removed in 1.5.
 \section faq4 Platform-specific
 
 
-\subsection faq_knl_numa How do I find the local MCDRAM NUMA node on Intel Knights Landing Xeon Phi?
+\subsection faq_knl_numa How do I find the local MCDRAM NUMA node on Intel(R) Xeon Phi(TM) processor?
 
-Intel Knights Landing Xeon Phi processors introduce a new memory architecture by
+Intel(R) Xeon Phi(TM) processors introduce a new memory architecture by
 possibly having two distinct local memories:
 some normal memory (DDR) and some high-bandwidth on-package memory (MCDRAM).
 Processors can be configured in various clustering modes to have up to 4 <em>Clusters</em>.
@@ -3460,7 +3459,7 @@ Starting with version 2.0, hwloc properly exposes this memory
 configuration.
 DDR and MCDRAM are attached as two memory children of the same parent,
 DDR first, and MCDRAM second if any.
-Depending on the KNL configuration, that parent may be a Package,
+Depending on the Intel(R) Xeon Phi(TM) processor configuration, that parent may be a Package,
 a Cache, or a Group object of type <tt>Cluster</tt>.
 
 Hence cores may have one or two local NUMA nodes, listed by the core nodeset.
@@ -3489,9 +3488,9 @@ $ hwloc-bind --membind numa:0 -- myprogram
 \endverbatim
 
 
-\subsection faq_knl_dump Why do I need hwloc-dump-hwdata for memory on Intel Knights Landing Xeon Phi?
+\subsection faq_knl_dump Why do I need hwloc-dump-hwdata for memory on Intel(R) Xeon Phi(TM) processor?
 
-Intel Knights Landing Xeon Phi processors may use the on-package memory (MCDRAM)
+Intel(R) Xeon Phi(TM) processors may use the on-package memory (MCDRAM)
 as either memory or a memory-side cache (currently reported as a L3 cache by hwloc).
 There are also several clustering modes that significantly affect the memory organization
 (see \ref faq_knl_numa for more information about these modes).
@@ -3511,17 +3510,17 @@ https://github.com/TresysTechnology/refpolicy-contrib
 
 hwloc-dump-hwdata requires <tt>dmi-sysfs</tt> kernel module loaded.
 
-The utility is currently unneeded on non-KNL platforms.
+The utility is currently unneeded on platforms without Intel(R) Xeon Phi(TM) processors.
 
 See <tt>HWLOC_DUMPED_HWDATA_DIR</tt> in \ref envvar for details
 about the location of dumped files.
 
 
-\subsection faq_phi How do I build for Intel Xeon Phi coprocessor?
+\subsection faq_phi How do I build for Intel(R) Xeon Phi(TM) coprocessor?
 
-\note This section does not apply to standalone Intel Knights Landing Xeon Phi.
+\note This section does not apply to standalone Intel(R) Xeon Phi(TM) processor.
 
-Intel Knights Corner Xeon Phi coprocessors usually runs a Linux environment
+Intel(R) Xeon Phi(TM) coprocessors usually runs a Linux environment
 but cross-compiling from the host is required.
 hwloc uses standard autotools options for cross-compiling.
 For instance, to build for a <em>Knights Corner (KNC)</em> coprocessor:
@@ -3613,7 +3612,8 @@ They are attached under objects as <i>Memory Children</i> on the side
 of normal children.
 This memory children list starts at <code>obj->memory_first_child</code>
 and its size is <code>obj->memory_arity</code>.
-Hence there can now exist two local NUMA nodes, for instance on KNL.
+Hence there can now exist two local NUMA nodes,
+for instance on Intel(R) Xeon Phi(TM) processor.
 
 The normal list of children (starting at <code>obj->first_child</code>,
 ending at <code>obj->last_child</code>, of size <code>obj->arity</code>,

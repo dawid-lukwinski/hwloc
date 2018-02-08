@@ -18,6 +18,10 @@
 
 #define KERNEL_SMBIOS_SYSFS "/sys/firmware/dmi/entries"
 
+/*
+ * This file is used for both Knights Landing and Knights Mill.
+ * Entries are identical, except the group string (see below).
+ */
 #define KNL_SMBIOS_GROUP_STRING "Group: Knights Landing Information"
 #define KNM_SMBIOS_GROUP_STRING "Group: Knights Mill Information"
 
@@ -175,7 +179,7 @@ static int check_entry(struct smbios_header *h, const char *end, const char *que
 static int is_phi_group(struct smbios_header *h, const char *end)
 {
     if (h->type != 14) {
-        fprintf(stderr, "SMBIOS table is not group table\n");
+        fprintf(stderr, "  SMBIOS table is not group table\n");
         return -1;
     }
 
@@ -211,7 +215,7 @@ static int process_smbios_group(const char *input_fsroot, char *dir_name, struct
     h = (struct smbios_header*)file_buf;
     end = file_buf+size;
     if (!is_phi_group(h, end)) {
-        fprintf(stderr, "SMBIOS table does not contain KNL entries\n");
+        fprintf(stderr, "SMBIOS table does not contain Intel(R) Xeon Phi(TM) processor entries\n");
         return -1;
     }
 
@@ -227,7 +231,7 @@ static int process_smbios_group(const char *input_fsroot, char *dir_name, struct
     for (; p < end; i++, p+=3) {
         struct smbios_group_entry *e = (struct smbios_group_entry*)p;
         data->knl_types[i] = e->type;
-        printf("  Found KNL type = %d\n", e->type);
+        printf("   Found Intel(R) Xeon Phi(TM) processor type = %d\n", e->type);
     }
 
     data->type_count = i;
@@ -256,7 +260,7 @@ static int process_knl_entry(const char *input_fsroot, char *dir_name, struct pa
     if (h->member_id & KNL_MEMBER_ID_GENERAL) {
         struct knl_general_info *info =
             (struct knl_general_info*) (file_buf+SMBIOS_KNL_HEADER_SIZE);
-        printf("  Getting general KNL info\n");
+        printf("   Getting general Intel(R) Xeon Phi(TM) processor info\n");
         data->cluster_mode = info->cluster_mode;
         data->memory_mode = info->memory_mode;
         data->cache_info = info->cache_info;
@@ -270,27 +274,27 @@ static int process_knl_entry(const char *input_fsroot, char *dir_name, struct pa
             int i = 0;
 
             if (0 == struct_size) {
-                printf("  MCDRAM info size is set to 0, falling back to known size\n");
+                printf("   MCDRAM info size is set to 0, falling back to known size\n");
                 struct_size = sizeof(*mi);
             }
-            printf("  Getting MCDRAM KNL info. Count=%d struct size=%d\n",
+            printf("   Getting Intel(R) Xeon Phi(TM) processor MCDRAM info. Count=%d struct size=%d\n",
                    (int)info->mcdram_info_count, struct_size);
             for ( ; i < info->mcdram_info_count; i++) {
                 if ((char*)mi >= end) {
-                    fprintf(stderr, "SMBIOS KNL entry is too small\n");
+                    fprintf(stderr, "SMBIOS Intel(R) Xeon Phi(TM) processor entry is too small\n");
                     return -1;
                 }
-                printf("  MCDRAM controller %d\n", mi->controller);
+                printf("    MCDRAM controller %d\n", mi->controller);
                 if (mi->status & 0x1) {
-                    printf("  Controller fused\n");
+                    printf("    Controller fused\n");
                 } else {
                     data->mcdram_regular += mi->size64MB;
-                    printf("  Size = %d MB\n", (int)mi->size64MB*64);
+                    printf("     Size = %d MB\n", (int)mi->size64MB*64);
                 }
                 mi = (struct knl_mcdram_info*)(((char*)mi)+struct_size);
             }
             /* convert to bytes  */
-            printf("  Total MCDRAM %llu MB\n", (long long unsigned int)data->mcdram_regular*64);
+            printf("    Total MCDRAM %llu MB\n", (long long unsigned int)data->mcdram_regular*64);
             data->mcdram_regular *= 64*1024*1024;
             /*
              * BIOS can expose some MCRAM controllers as fused
@@ -396,15 +400,15 @@ static int print_result(struct parser_data *data, const char *out_file)
             return -1;
     }
 
-    printf("  Cluster Mode: %s Memory Mode: %s\n",
+    printf(" Cluster Mode: %s Memory Mode: %s\n",
             get_cluster_mode_str(data->cluster_mode),
             get_memory_mode_str(data->memory_mode, data->cache_info));
-    printf("  MCDRAM total = %llu bytes, cache = %llu bytes\n",
+    printf(" MCDRAM total = %llu bytes, cache = %llu bytes\n",
            (long long unsigned int)data->mcdram_regular,
            (long long unsigned int)data->mcdram_cache);
     data->mcdram_regular /= node_count;
     data->mcdram_cache /= node_count;
-    printf("  MCDRAM total = %llu bytes, cache = %llu bytes per node\n",
+    printf(" MCDRAM total = %llu bytes, cache = %llu bytes per node\n",
            (long long unsigned int)data->mcdram_regular,
            (long long unsigned int)data->mcdram_cache);
 
@@ -451,7 +455,7 @@ int hwloc_dump_hwdata_knl_smbios(const char *input_fsroot, const char *outfile)
     char path[PATH_SIZE];
     int err;
 
-    printf("Dumping KNL SMBIOS Memory-Side Cache information:\n");
+    printf("Dumping Intel(R) Xeon Phi(TM) processor SMBIOS Memory-Side Cache information:\n");
 
     snprintf(path, PATH_SIZE-1, "%s/" KERNEL_SMBIOS_SYSFS, input_fsroot);
     path[PATH_SIZE-1] = 0;
@@ -477,7 +481,7 @@ int hwloc_dump_hwdata_knl_smbios(const char *input_fsroot, const char *outfile)
     }
 
     if (!data.type_count) {
-      fprintf (stderr, "  Couldn't find any KNL information.\n");
+      fprintf (stderr, "  Couldn't find any Intel(R) Xeon Phi(TM) processor information.\n");
       closedir(d);
       return -1;
     }
@@ -486,7 +490,7 @@ int hwloc_dump_hwdata_knl_smbios(const char *input_fsroot, const char *outfile)
     for (i = 0; i < data.type_count; i++) {
         char tab[16] = {0};
         int l = snprintf(tab, sizeof(tab)-1, "%d-", data.knl_types[i]);
-        printf ("  Seeking dir ̀`%s' %d\n", tab, l);
+        printf (" Seeking dir ̀`%s' %d\n", tab, l);
         rewinddir(d);
         while ((dir = readdir(d))) {
             if (strncmp(dir->d_name, tab, l) == 0) {
